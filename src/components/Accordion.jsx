@@ -25,7 +25,7 @@ const Accordion = ({ todoTitle, taskName, id }) => {
           <IoIosArrowForward className={isOpen ? "rotate-90" : ""} />
         </span>
         <HiOutlineDocumentText />
-        <Link to={`/todo/${id}/allTask`} className="ml-1">
+        <Link to={`/todo/${id}`} className="ml-1">
           <span className="ml-1">
             {" "}
             {todoTitle.slice(0, 10)}

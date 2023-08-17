@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { HiOutlineDocumentText } from "react-icons/hi";
+import { HiOutlineDocumentText, HiOutlineLogout } from "react-icons/hi";
 import {
   FaBars,
   FaEdit,
@@ -8,7 +8,7 @@ import {
   FaTimes,
   FaTrash,
 } from "react-icons/fa";
-import { IoIosArrowForward } from "react-icons/io";
+
 import { Link } from "react-router-dom";
 import { useContext, useState } from "react";
 import { ModalContext } from "../context/ModalToggle";
@@ -68,6 +68,14 @@ const Sidebar = () => {
                 <FaPlusCircle /> New page
               </button>
             </li>
+            <li>
+              <button
+                onClick={() => setIsModal(true)}
+                className="flex items-center gap-2 p-1 bg-red-100 text-red-500 rounded-lg hover:bg-red-50 group w-full focus:outline-none active:bg-white"
+              >
+                <HiOutlineLogout className="ml-1" /> logout
+              </button>
+            </li>
 
             {/* Favorite list  */}
             <li>
@@ -76,9 +84,6 @@ const Sidebar = () => {
             {/* Getting started  */}
             <li className="group">
               <Link className="flex items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
-                <span>
-                  <IoIosArrowForward />
-                </span>
                 <HiOutlineDocumentText />
 
                 <span className="ml-1">Getting Start</span>
@@ -117,11 +122,7 @@ const Sidebar = () => {
             </li>
             <li className="group">
               <Link className="flex items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
-                <span>
-                  <IoIosArrowForward />
-                </span>
                 <HiOutlineDocumentText />
-
                 <span className="ml-1">Getting Start</span>
 
                 {/* action  */}
