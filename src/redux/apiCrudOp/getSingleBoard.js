@@ -1,12 +1,12 @@
 import baseApi from "../features/baseApi";
 
-export const getBoardSection = baseApi.injectEndpoints({
+export const getSingleBoard = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getBoardSection: builder.query({
+    getSingleBoard: builder.query({
       query: (boardId) => `/boards/${boardId}`,
       providesTags: ["boards"],
     }),
   }),
 });
 
-export const { useGetBoardSectionQuery } = getBoardSection;
+export const { useGetSingleBoardQuery } = getSingleBoard;

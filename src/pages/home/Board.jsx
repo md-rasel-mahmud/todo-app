@@ -1,14 +1,15 @@
 import { FaPlus, FaRegCheckSquare } from "react-icons/fa";
-import { useGetBoardSectionQuery } from "../../redux/apiCrudOp/getBoardSection";
+
 import { useUpdateBoardMutation } from "../../redux/apiCrudOp/updateBoard";
 import { NavLink, Outlet, useParams } from "react-router-dom";
 import { useCreateSectionMutation } from "../../redux/apiCrudOp/createSection";
 import { useEffect } from "react";
 import Toast from "../../components/CustomToast";
+import { useGetSingleBoardQuery } from "../../redux/apiCrudOp/getSingleBoard";
 
 const Board = () => {
   const { boardId } = useParams();
-  const { data } = useGetBoardSectionQuery(boardId);
+  const { data } = useGetSingleBoardQuery(boardId);
   const [setUpdateData] = useUpdateBoardMutation();
   const [setCreateSection, { data: createSectionResponse }] =
     useCreateSectionMutation();

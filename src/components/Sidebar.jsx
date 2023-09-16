@@ -15,7 +15,7 @@ import { ModalContext } from "../context/ModalToggle";
 import { useGetBoardQuery } from "../redux/apiCrudOp/getBoard";
 import { useDeleteBoardMutation } from "../redux/apiCrudOp/deleteBoard";
 import { useCreateBoardMutation } from "../redux/features/baseApi";
-import { Dots } from "react-preloaders";
+
 import Swal from "sweetalert2";
 import Toast from "./CustomToast";
 // import Accordion from "./Accordion";
@@ -26,10 +26,8 @@ const Sidebar = () => {
 
   // redux hooks
   const { data: todoData } = useGetBoardQuery();
-  const [setDeleteBoard, { data: deleteResponse, isLoading }] =
-    useDeleteBoardMutation();
-  const [createBoard, { data: boardCreateResponse, isLoading: createLoading }] =
-    useCreateBoardMutation();
+  const [setDeleteBoard, { data: deleteResponse }] = useDeleteBoardMutation();
+  const [createBoard, { data: boardCreateResponse }] = useCreateBoardMutation();
 
   // navigator
   const navigate = useNavigate();
@@ -62,6 +60,7 @@ const Sidebar = () => {
     });
   };
 
+  // show toast
   useEffect(() => {
     if (boardCreateResponse) {
       Toast.fire({
@@ -74,15 +73,15 @@ const Sidebar = () => {
         icon: "success",
         title: "Deleted successfully",
       });
+      navigate(`/board/${todoData?.[0]._id}/section` || "/");
     }
     if (boardCreateResponse) {
-      navigate(`/board/${boardCreateResponse.id}`);
+      navigate(`/board/${boardCreateResponse.id}/section`);
     }
   }, [deleteResponse, boardCreateResponse]);
 
   return (
     <div className="relative">
-      {(isLoading || createLoading) && <Dots color={"black"} />}
       <button
         onClick={() => setSidebarOpen(true)}
         type="button"
@@ -141,6 +140,50 @@ const Sidebar = () => {
             </li>
           </ul>
           <ul className="space-y-1 font-medium ml-2">
+            {todoData?.find((favorite) => favorite.favorite === true)
+              ?.favorite === true && (
+              <li>
+                <small className="text-gray-400">Favorite</small>
+              </li>
+            )}
+            {todoData
+              ?.filter((favorite) => favorite.favorite === true)
+              .map((item) => (
+                <li key={item._id} className="group">
+                  <div className="flex justify-between items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
+                    <Link
+                      to={`board/${item._id}/section`}
+                      className="hover:bg-white p-1 rounded-md w-full"
+                    >
+                      <span className="flex gap-1 items-center">
+                        <HiOutlineDocumentText />
+                        {item.title.length > 14
+                          ? item.title.slice(0, 11) + "..."
+                          : item.title}
+                      </span>
+                    </Link>
+
+                    <div className="hidden group-hover:flex ml-2">
+                      <span className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1">
+                        <FaEdit />
+                      </span>
+                      <span
+                        onClick={() => setIsModal(true)}
+                        className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1"
+                      >
+                        <FaPlus />
+                      </span>
+                      <span
+                        onClick={() => handleDelete(item._id)}
+                        className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1 text-red-400"
+                      >
+                        <FaTrash />
+                      </span>
+                    </div>
+                  </div>
+                </li>
+              ))}
+
             <li>
               <small className="text-gray-400">All Task</small>
             </li>
