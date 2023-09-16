@@ -7,14 +7,15 @@ import { useEffect } from "react";
 import Toast from "../../components/CustomToast";
 import Swal from "sweetalert2";
 import { useGetSingleBoardQuery } from "../../redux/apiCrudOp/getSingleBoard";
+import CustomLoader from "../../components/CustomLoader";
 
 const Section = () => {
   const { boardId } = useParams();
   const { data } = useGetSingleBoardQuery(boardId);
 
-  const [setUpdateSections, { data: updateResponse }] =
+  const [setUpdateSections, { data: updateResponse, isLoading }] =
     useUpdateSectionMutation();
-  const [setDeleteSection, { data: deleteResponse }] =
+  const [setDeleteSection, { data: deleteResponse, isLoading: deleteLoading }] =
     useDeleteSectionMutation();
 
   // update data
@@ -67,6 +68,7 @@ const Section = () => {
 
   return (
     <>
+      {(isLoading || deleteLoading) && <CustomLoader />}
       <div className="">
         <div
           id="scrollContainer"
