@@ -1,12 +1,12 @@
 import { useParams } from "react-router-dom";
-import useTaskList from "../../hooks/useTaskList";
+import { useGetBoardSectionQuery } from "../../redux/apiCrudOp/getBoardSection";
 
 /* eslint-disable react/prop-types */
 const AllTask = () => {
-  const [allTaskList] = useTaskList();
-  const { id } = useParams();
+  const { boardId } = useParams();
+  const { data } = useGetBoardSectionQuery(boardId);
 
-  const filterAllTask = allTaskList.find((task) => task.id == id);
+  // console.log(data);
 
   return (
     <div className="relative overflow-x-auto border sm:rounded-lg">
@@ -34,13 +34,13 @@ const AllTask = () => {
 
         {/* Task list table  */}
         <tbody>
-          {filterAllTask.taskList.map((task, index) => (
+          {[data]?.map((task, index) => (
             <tr key={index} className="bg-white">
               <th
                 scope="row"
                 className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap "
               >
-                {task.taskName}
+                {task.title}
               </th>
               <td className="px-6 py-4">{task.creatorName}</td>
               <td className="px-6 py-4">{task.createdAt}</td>

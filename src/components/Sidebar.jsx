@@ -9,19 +9,80 @@ import {
   FaTrash,
 } from "react-icons/fa";
 
-import { Link } from "react-router-dom";
-import { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 import { ModalContext } from "../context/ModalToggle";
-import Accordion from "./Accordion";
-import useTodoList from "../hooks/useTodoList";
+import { useGetBoardQuery } from "../redux/apiCrudOp/getBoard";
+import { useDeleteBoardMutation } from "../redux/apiCrudOp/deleteBoard";
+import { useCreateBoardMutation } from "../redux/features/baseApi";
+import { Dots } from "react-preloaders";
+import Swal from "sweetalert2";
+import Toast from "./CustomToast";
+// import Accordion from "./Accordion";
 
 const Sidebar = () => {
   const { setIsModal } = useContext(ModalContext);
-  const [todoList] = useTodoList();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // redux hooks
+  const { data: todoData } = useGetBoardQuery();
+  const [setDeleteBoard, { data: deleteResponse, isLoading }] =
+    useDeleteBoardMutation();
+  const [createBoard, { data: boardCreateResponse, isLoading: createLoading }] =
+    useCreateBoardMutation();
+
+  // navigator
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/auth/login");
+  };
+
+  // create board and navigate to new page
+  const handleBoard = () => {
+    createBoard();
+  };
+
+  // delete board
+  const handleDelete = (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setDeleteBoard(id);
+
+        Swal.fire("Deleted!", "Your file has been deleted.", "success");
+      }
+    });
+  };
+
+  useEffect(() => {
+    if (boardCreateResponse) {
+      Toast.fire({
+        icon: "success",
+        title: "Board Create successfully",
+      });
+    }
+    if (deleteResponse) {
+      Toast.fire({
+        icon: "success",
+        title: "Deleted successfully",
+      });
+    }
+    if (boardCreateResponse) {
+      navigate(`/board/${boardCreateResponse.id}`);
+    }
+  }, [deleteResponse, boardCreateResponse]);
 
   return (
     <div className="relative">
+      {(isLoading || createLoading) && <Dots color={"black"} />}
       <button
         onClick={() => setSidebarOpen(true)}
         type="button"
@@ -62,7 +123,8 @@ const Sidebar = () => {
           <ul className="space-y-2 font-medium ml-2">
             <li>
               <button
-                onClick={() => setIsModal(true)}
+                type="button"
+                onClick={handleBoard}
                 className="flex items-center gap-2 p-1 text-gray-500 rounded-lg hover:bg-gray-100 group w-full focus:outline-none active:bg-white"
               >
                 <FaPlusCircle /> New page
@@ -70,78 +132,54 @@ const Sidebar = () => {
             </li>
             <li>
               <button
-                onClick={() => setIsModal(true)}
+                type="button"
+                onClick={handleLogout}
                 className="flex items-center gap-2 p-1 bg-red-100 text-red-500 rounded-lg hover:bg-red-50 group w-full focus:outline-none active:bg-white"
               >
                 <HiOutlineLogout className="ml-1" /> logout
               </button>
             </li>
-
-            {/* Favorite list  */}
-            <li>
-              <small className="text-gray-400">Favorite</small>
-            </li>
-            {/* Getting started  */}
-            <li className="group">
-              <Link className="flex items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
-                <HiOutlineDocumentText />
-
-                <span className="ml-1">Getting Start</span>
-
-                {/* action  */}
-                <div className="hidden group-hover:flex ml-2">
-                  <span className="rounded text-sm active:text-sky-600 hover:bg-white p-1">
-                    <FaEdit />
-                  </span>
-                  <span
-                    onClick={() => setIsModal(true)}
-                    className="rounded text-sm active:text-sky-600 hover:bg-white p-1"
-                  >
-                    <FaPlus />
-                  </span>
-                  <span className="rounded text-sm active:text-sky-600 hover:bg-white p-1 text-red-400">
-                    <FaTrash />
-                  </span>
-                </div>
-              </Link>
-            </li>
-
-            {/* sidebar list  */}
-            {todoList.map((item) => (
-              <Accordion
-                key={item.id}
-                id={item.id}
-                todoTitle={item.todoTitle}
-                taskName={item.taskName}
-              />
-            ))}
           </ul>
-          <ul className="space-y-2 font-medium ml-2">
+          <ul className="space-y-1 font-medium ml-2">
             <li>
-              <small className="text-gray-400">Private</small>
+              <small className="text-gray-400">All Task</small>
             </li>
-            <li className="group">
-              <Link className="flex items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
-                <HiOutlineDocumentText />
-                <span className="ml-1">Getting Start</span>
 
-                {/* action  */}
-                <div className="hidden group-hover:flex ml-2">
-                  <span className="rounded text-sm active:text-sky-600 hover:bg-white p-1">
-                    <FaEdit />
-                  </span>
-                  <span
-                    onClick={() => setIsModal(true)}
-                    className="rounded text-sm active:text-sky-600 hover:bg-white p-1"
+            {todoData?.map((item) => (
+              <li key={item._id} className="group">
+                <div className="flex justify-between items-center p-1 text-gray-600 rounded-lg hover:bg-gray-100 group">
+                  <Link
+                    to={`board/${item._id}/section`}
+                    className="hover:bg-white p-1 rounded-md w-full"
                   >
-                    <FaPlus />
-                  </span>
-                  <span className="rounded text-sm active:text-sky-600 hover:bg-white p-1 text-red-400">
-                    <FaTrash />
-                  </span>
+                    <span className="flex gap-1 items-center">
+                      <HiOutlineDocumentText />
+                      {item.title.length > 14
+                        ? item.title.slice(0, 11) + "..."
+                        : item.title}
+                    </span>
+                  </Link>
+
+                  <div className="hidden group-hover:flex ml-2">
+                    <span className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1">
+                      <FaEdit />
+                    </span>
+                    <span
+                      onClick={() => setIsModal(true)}
+                      className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1"
+                    >
+                      <FaPlus />
+                    </span>
+                    <span
+                      onClick={() => handleDelete(item._id)}
+                      className="rounded cursor-pointer text-sm active:text-sky-600 hover:bg-white p-1 text-red-400"
+                    >
+                      <FaTrash />
+                    </span>
+                  </div>
                 </div>
-              </Link>
-            </li>
+              </li>
+            ))}
           </ul>
         </div>
       </aside>
